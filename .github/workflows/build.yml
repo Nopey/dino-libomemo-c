@@ -80,3 +80,32 @@ jobs:
 #        run: meson compile -C build
 #      - name: "Test project"
 #        run: meson test -C build --suite libomemo-c
+  build-windows-msys2:
+    name: Build on Windows with wraps and MSYS2
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - name: "Checkout sources"
+        uses: actions/checkout@v4
+      - name: "Setup MSYS2, install dependencies"
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            git
+          pacboy: >-
+            ca-certificates:p
+            meson:p
+            gcc:p
+      - name: "Update wrap db"
+        run: |
+          meson wrap update-db
+      - name: "Configure project"
+        run: meson setup build
+      - name: "Build project"
+        run: meson compile -C build
+      - name: "Test project"
+        run: meson test -C build --suite libomemo-c
